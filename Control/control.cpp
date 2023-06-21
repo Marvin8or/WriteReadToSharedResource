@@ -7,25 +7,32 @@ using namespace std;
 
 void write(vector<int>* sharedResource)
 {
-	int valueToWrite = generateRandomNumber(1, 10); //ToDo create on heap
-	cout << "Writing: " << valueToWrite << endl;
-	sharedResource->push_back(valueToWrite);
+	int writeOperationCounter = 0;
+	while(writeOperationCounter++ != maxOperations)
+	{
+		int valueToWrite = generateRandomNumber(1, 10); //ToDo create on heap
+		cout << "Thread[1] Writing: " << valueToWrite << endl;
+		sharedResource->push_back(valueToWrite);
+	}
 }	
 
 void read(vector<int>* sharedResource)
 {
-	
-	if(sharedResource->size() != 0)
+	int readOperationCounter = 0;
+	while(readOperationCounter++ != maxOperations)
 	{
-		int consumedValue = sharedResource->back();
-		cout << "Got: " << consumedValue << endl;
-		sharedResource->pop_back();
+		if (sharedResource->size() != 0)
+		{
+			int consumedValue = sharedResource->back();
+			cout << "Thread[2] Got: " << consumedValue << endl;
+			sharedResource->pop_back();
+		}
+		else
+		{
+			cout << "Thread[2] ";
+			sleepFor(1);
+		}
 	}
-	else
-	{
-		sleepFor(1);
-	}
-	
 }
 
 vector<int>* initialize()

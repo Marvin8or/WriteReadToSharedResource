@@ -6,6 +6,9 @@ using namespace std;
 // The buffer has a maximum size that is constant
 const int maxBufferSite = 10;
 
+// Maximum number fo read/write operations
+const int maxOperations = 100;
+
 // Write data to the shared resource
 void write(vector<int>* sharedResource);
 
