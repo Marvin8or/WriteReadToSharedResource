@@ -5,14 +5,27 @@
 #include "control.h"
 using namespace std;
 
-void write(int value)
+void write(vector<int>* sharedResource)
 {
-	cout << " Write to buffer: " << value << endl;
-}
+	int valueToWrite = generateRandomNumber(1, 10); //ToDo create on heap
+	cout << "Writing: " << valueToWrite << endl;
+	sharedResource->push_back(valueToWrite);
+}	
 
-void read()
+void read(vector<int>* sharedResource)
 {
-	cout << "Read from buffer" << endl;
+	
+	if(sharedResource->size() != 0)
+	{
+		int consumedValue = sharedResource->back();
+		cout << "Got: " << consumedValue << endl;
+		sharedResource->pop_back();
+	}
+	else
+	{
+		sleepFor(1);
+	}
+	
 }
 
 vector<int>* initialize()

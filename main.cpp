@@ -7,8 +7,8 @@ vector<int>* sharedResource = initialize();
 int main()
 {
 	
-	std::thread Thread1(write, 123);
-	std::thread Thread2(read);
+	std::thread Thread1(write, sharedResource);
+	std::thread Thread2(read, sharedResource);
 
 	Thread1.join();
 	Thread2.join();

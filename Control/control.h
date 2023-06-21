@@ -7,14 +7,14 @@ using namespace std;
 const int maxBufferSite = 10;
 
 // Write data to the shared resource
-void write(int value);
+void write(vector<int>* sharedResource);
 
 // Read and consume data from the share resource
-void read();
+void read(vector<int>* sharedResource);
 
 // Initialize the shared resource
 vector<int>* initialize();
 
-int generateRandomNumber(); //ToDo GOES INTO HELPER/UTILS
+int generateRandomNumber(int min_val, int max_val); //ToDo GOES INTO HELPER/UTILS
 void sleepFor(int seconds); //ToDo GOES INTO HELPER/UTILS
 void printBuffer(vector<int>* resource);
