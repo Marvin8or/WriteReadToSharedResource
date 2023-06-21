@@ -1,37 +1,52 @@
 #include <iostream>
-#include <mutex>
 #include <random>
 #include <chrono>
 #include "control.h"
 using namespace std;
 
-void write(vector<int>* sharedResource)
+void write(int threadNum, std::mutex& m, vector<int>* sharedResource, int& counter)
 {
 	int writeOperationCounter = 0;
 	while(writeOperationCounter++ != maxOperations)
 	{
-		int valueToWrite = generateRandomNumber(1, 10); //ToDo create on heap
-		cout << "Thread[1] Writing: " << valueToWrite << endl;
-		sharedResource->push_back(valueToWrite);
+		m.lock();
+		if (counter < maxBufferSize)
+		{
+			int valueToWrite = generateRandomNumber(1, 10); //ToDo create on heap
+			cout << "Thread[" << threadNum << "] Writing: " << valueToWrite << endl;
+			sharedResource->push_back(valueToWrite);
+			counter++;
+		}
+		m.unlock();
+		cout << "Thread[" << threadNum << "] ";
+		sleepFor(500);
 	}
 }	
 
-void read(vector<int>* sharedResource)
+void read(int threadNum, std::mutex& m, vector<int>* sharedResource, int& counter)
 {
 	int readOperationCounter = 0;
 	while(readOperationCounter++ != maxOperations)
 	{
-		if (sharedResource->size() != 0)
+		int consumedValue = -1;
+		m.lock();
+		if(counter > 0)
 		{
-			int consumedValue = sharedResource->back();
-			cout << "Thread[2] Got: " << consumedValue << endl;
+			consumedValue = sharedResource->back();
 			sharedResource->pop_back();
+			counter--;
+			cout << "Thread[" << threadNum << "] Got: " << consumedValue << endl;
+			m.unlock();
+			
 		}
 		else
 		{
-			cout << "Thread[2] ";
-			sleepFor(1);
+			m.unlock();
+			cout << "Thread[" << threadNum << "] ";
+			sleepFor(500);
 		}
+		
+		
 	}
 }
 
@@ -51,19 +66,19 @@ int generateRandomNumber(int min_val, int max_val)
 	return dist(gen);
 }
 
-void sleepFor(int seconds)
+void sleepFor(int value)
 {
-	cout << "Sleeping for " << seconds << "s ... " << endl;
-	std::this_thread::sleep_for(std::chrono::seconds(seconds));
+	cout << "Sleeping for " << value << "ms ... " << endl;
+	std::this_thread::sleep_for(std::chrono::milliseconds(value));
 }
 
-//ToDo For now takes vector<int>
-void printBuffer(vector<int>* resource) 
+//ToDo For now takes int array
+void printBuffer(vector<int>* resource, int* count)
 {
 	cout << "[";
-	for (int i = 0; i < resource->size(); i++)
+	for (int i = 0; i < *count; i++)
 	{
-		if(i == resource->size() - 1)
+		if(i == (*count) - 1)
 		{
 			cout << resource->at(i);
 		}
