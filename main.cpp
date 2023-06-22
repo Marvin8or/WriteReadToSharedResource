@@ -11,7 +11,7 @@ int main()
 {
 	
 	std::thread Thread1(write, 1, std::ref(controlMutex), sharedResource, std::ref(counter));
-	std::thread Thread2(read, 2, std::ref(controlMutex), sharedResource, std::ref(counter));
+	std::thread Thread2(read, 3, std::ref(controlMutex), sharedResource, std::ref(counter));
 
 	Thread1.join();
 	Thread2.join();

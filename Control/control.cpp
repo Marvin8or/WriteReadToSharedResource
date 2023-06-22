@@ -17,9 +17,14 @@ void write(int threadNum, std::mutex& m, vector<int>* sharedResource, int& count
 			sharedResource->push_back(valueToWrite);
 			counter++;
 		}
+		else
+		{
+			cout << "Thread[" << threadNum << "] skipped"<< endl;
+
+		}
 		m.unlock();
 		cout << "Thread[" << threadNum << "] ";
-		sleepFor(500);
+		sleepFor(100);
 	}
 }	
 
