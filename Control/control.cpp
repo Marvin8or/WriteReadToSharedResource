@@ -4,65 +4,103 @@
 #include "control.h"
 using namespace std;
 
-void write(int threadNum, std::mutex& m, vector<int>* sharedResource, int& readIndex, int& writeIndex)
+ControlAPI::ControlAPI(int size)
+{
+	if(size <= 0)
+	{
+		std::cerr << "Size must be greater than 0!" << std::endl;
+	}
+
+	this->maxBufferSize = size;
+}
+
+void ControlAPI::initialize()
+{
+	this->sharedResourcePtr = new vector<Data*>(this->maxBufferSize);
+	if(this->sharedResourcePtr == nullptr)
+	{
+		std::cerr << "Unable to allocate shared resource!";
+	}
+}
+
+void ControlAPI::write(int threadNum)
 {
 	int writeOperationCounter = 0;
-	while(writeOperationCounter++ != maxOperations)
+	while (writeOperationCounter++ != this->maxOperationsNum)
 	{
-		m.lock();
-		int valueToWrite = generateRandomNumber(1, 10); //ToDo create on heap
-		int nextWriteIndex = (writeIndex + 1) % maxBufferSize;
-		if(nextWriteIndex == readIndex)
+		this->controlMutex.lock();
+		//int valueToWrite = generateRandomNumber(1, 10); //ToDo create on heap
+		int nextWriteIndex = (this->currentWriteIndex + 1) % maxBufferSize;
+		if (nextWriteIndex == this->currentReadIndex)
 		{
-			// Wait till consumer cathes up
+			// Wait till consumer catches up
 			cout << "Thread[" << threadNum << "] Waiting for reader..." << endl;
-			m.unlock();
+			this->controlMutex.unlock();
 			sleepFor(threadNum, 100);
 		}
 		else
 		{
-			cout << "Thread[" << threadNum << "] Writing at index ["<< writeIndex << "]: " << valueToWrite << endl;
-			sharedResource->at(writeIndex) = valueToWrite;
-			writeIndex = nextWriteIndex;
-			m.unlock();
+			Data* dataToWrite = new Data;
+			dataToWrite->dataInt1 = generateRandomNumber(1, 10);
+			dataToWrite->dataInt2 = generateRandomNumber(1, 10);
+			cout << "Thread[" << threadNum << "] Writing at index [" << this->currentWriteIndex << "]: " << dataToWrite->dataInt1 << endl;
+
+			this->sharedResourcePtr->at(this->currentWriteIndex) = dataToWrite;
+			this->currentWriteIndex = nextWriteIndex;
+			this->controlMutex.unlock();
 			sleepFor(threadNum, 100);
 		}
 	}
-}	
 
-void read(int threadNum, std::mutex& m, vector<int>* sharedResource, int& readIndex, int& writeIndex)
+}
+
+void ControlAPI::read(int threadNum)
 {
 	int readOperationCounter = 0;
-	while(readOperationCounter++ != maxOperations)
+	while (readOperationCounter++ != this->maxOperationsNum)
 	{
-		m.lock();
-		int nextReadIndex = (readIndex + 1) % maxBufferSize;
+		this->controlMutex.lock();
+		int nextReadIndex = (this->currentReadIndex + 1) % maxBufferSize;
 
-		if(readIndex == writeIndex)
+		if (this->currentReadIndex == this->currentWriteIndex)
 		{
 			// Wait for reader to catch up with writer
 			cout << "Thread[" << threadNum << "] Waiting for writer..." << endl;
-			m.unlock();
+			this->controlMutex.unlock();
 			sleepFor(threadNum, 100);
 		}
 		else
 		{
-			int consumedValue = sharedResource->at(readIndex);
-			cout << "Thread[" << threadNum << "] Got at index [" << readIndex << "]: " << consumedValue << endl;
-			readIndex = nextReadIndex;
-			m.unlock();
+			Data* consumedValue = this->sharedResourcePtr->at(this->currentReadIndex);
+			cout << "Thread[" << threadNum << "] Reading at index [" << this->currentReadIndex << "]: " << consumedValue->dataInt1 << endl;
+			delete consumedValue;
+
+			this->currentReadIndex = nextReadIndex;
+			this->controlMutex.unlock();
 			sleepFor(threadNum, 100);
 		}
 
-		
+
 	}
 }
 
-vector<int>* initialize()
+void printBuffer(int size, vector<Data*>* data)
 {
-	vector<int>* shared_resource = new vector<int>(maxBufferSize);
-	return shared_resource;
+	cout << "[";
+	for (int i = 0; i < size; i++)
+	{
+		if (i == size - 1)
+		{
+			cout << "{ data1: " << data->at(i)->dataInt1 << ", data2: " << data->at(i)->dataInt2 << "}";
+		}
+		else
+		{
+			cout << "{ data1: " << data->at(i)->dataInt1 << ", data2: " << data->at(i)->dataInt2 << "}, ";
+		}
+	}
+	cout << "]" << endl;
 }
+
 
 
 // For now acts as initialize variable
@@ -74,26 +112,9 @@ int generateRandomNumber(int min_val, int max_val)
 	return dist(gen);
 }
 
+
 void sleepFor(int threadNum, int value)
 {
 	cout << "Thread[" << threadNum << "] sleeping for " << value << "ms ... " << endl;
 	std::this_thread::sleep_for(std::chrono::milliseconds(value));
-}
-
-//ToDo For now takes int array
-void printBuffer(vector<int>* resource)
-{
-	cout << "[";
-	for (int i = 0; i < maxBufferSize; i++)
-	{
-		if(i == maxBufferSize - 1)
-		{
-			cout << resource->at(i);
-		}
-		else
-		{
-			cout << resource->at(i) << ", ";
-		}
-	}
-	cout << "]" << endl;
 }
