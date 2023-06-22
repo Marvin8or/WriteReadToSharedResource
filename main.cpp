@@ -5,16 +5,18 @@ using namespace std;
 
 vector<int>* sharedResource = initialize();
 std::mutex controlMutex;
-int counter = 0;
+
+int currReadIndex = 0;
+int currWriteIndex = 0;
 
 int main()
 {
 	
-	std::thread Thread1(write, 1, std::ref(controlMutex), sharedResource, std::ref(counter));
-	std::thread Thread2(read, 3, std::ref(controlMutex), sharedResource, std::ref(counter));
+	std::thread Thread1(write, 1, std::ref(controlMutex), sharedResource, std::ref(currReadIndex), std::ref(currWriteIndex));
+	std::thread Thread2(read, 2, std::ref(controlMutex), sharedResource, std::ref(currReadIndex), std::ref(currWriteIndex));
 
 	Thread1.join();
 	Thread2.join();
-	printBuffer(sharedResource, &counter);
+	printBuffer(sharedResource);
 	return 0;
 }
