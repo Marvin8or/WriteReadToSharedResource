@@ -1,16 +1,8 @@
 #pragma once
-#include <iostream>
 #include <vector>
 #include <mutex>
+#include "../Utils/utils.h"
 using namespace std;
-
-
-struct Data
-{
-	int dataInt1;
-	int dataInt2;
-};
-
 
 class ControlAPI
 {
@@ -31,7 +23,3 @@ public:
 	int getReadIndex() { return this->currentReadIndex; }
 	vector<Data*>* getSharedResourcePtr() { return this->sharedResourcePtr; }
 };
-
-int generateRandomNumber(int min_val, int max_val); //ToDo GOES INTO HELPER/UTILS
-void sleepFor(int threadNum, int value); //ToDo GOES INTO HELPER/UTILS
-void printBuffer(int maxBufferSize, vector<Data*>* data);

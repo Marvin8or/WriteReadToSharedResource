@@ -1,6 +1,7 @@
 #include <iostream>
 #include <thread>
 #include "Control/control.h"
+#include "Utils/utils.h"
 using namespace std;
 
 ControlAPI* control = new ControlAPI(10);
