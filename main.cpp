@@ -6,7 +6,6 @@ using namespace std;
 
 ControlAPI* control = new ControlAPI(10);
 
-//TODO Comment code
 //TODO Test code
 int main()
 {

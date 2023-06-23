@@ -2,6 +2,8 @@
 #include <vector>
 using namespace std;
 
+
+// Representation of the Data that will be stored in the buffer
 struct Data
 {
 	int dataInt1;
