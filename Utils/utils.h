@@ -9,6 +9,6 @@ struct Data
 };
 
 
-int generateRandomNumber(int min_val, int max_val); //ToDo GOES INTO HELPER/UTILS
-void sleepFor(int threadNum, int value); //ToDo GOES INTO HELPER/UTILS
+int generateRandomNumber(int min_val, int max_val);
+void sleepFor(int threadNum, int value);
 void printBuffer(int maxBufferSize, vector<Data*>* data);

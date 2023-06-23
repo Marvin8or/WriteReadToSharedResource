@@ -6,6 +6,8 @@ using namespace std;
 
 ControlAPI* control = new ControlAPI(10);
 
+//TODO Comment code
+//TODO Test code
 int main()
 {
 	control->initialize();
@@ -14,6 +16,7 @@ int main()
 
 	Thread1.join();
 	Thread2.join();
+
 	printBuffer(control->getWriteIndex(), control->getSharedResourcePtr());
 	return 0;
 }

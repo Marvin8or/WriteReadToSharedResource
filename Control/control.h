@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <mutex>
+#include <condition_variable>
 #include "../Utils/utils.h"
 using namespace std;
 
@@ -13,6 +14,8 @@ private:
 	int currentWriteIndex = 0;
 	int currentReadIndex = 0;
 	vector<Data*>* sharedResourcePtr;
+	std::condition_variable bufferIsFull;
+	std::condition_variable bufferIsEmpty;
 
 public:
 	ControlAPI(int size);

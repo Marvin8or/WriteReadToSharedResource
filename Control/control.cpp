@@ -29,30 +29,24 @@ void ControlAPI::write(int threadNum)
 	int writeOperationCounter = 0;
 	while (writeOperationCounter++ != this->maxOperationsNum)
 	{
-		this->controlMutex.lock();
-		//int valueToWrite = generateRandomNumber(1, 10); //ToDo create on heap
+		std::unique_lock<std::mutex> lock(this->controlMutex);
+
 		int nextWriteIndex = (this->currentWriteIndex + 1) % maxBufferSize;
-		if (nextWriteIndex == this->currentReadIndex)
-		{
-			// Wait till consumer catches up
-			cout << "Thread[" << threadNum << "] Waiting for reader..." << endl;
-			this->controlMutex.unlock();
-			sleepFor(threadNum, 100);
-		}
-		else
-		{
-			Data* dataToWrite = new Data;
-			dataToWrite->dataInt1 = generateRandomNumber(1, 10);
-			dataToWrite->dataInt2 = generateRandomNumber(1, 10);
-			cout << "Thread[" << threadNum << "] Writing at index [" << this->currentWriteIndex << "]: " << dataToWrite->dataInt1 << endl;
 
-			this->sharedResourcePtr->at(this->currentWriteIndex) = dataToWrite;
-			this->currentWriteIndex = nextWriteIndex;
-			this->controlMutex.unlock();
-			sleepFor(threadNum, 100);
-		}
+		this->bufferIsFull.wait(lock,[nextWriteIndex, this] {return nextWriteIndex != this->currentReadIndex; });
+
+		Data* dataToWrite = new Data;
+		dataToWrite->dataInt1 = generateRandomNumber(1, 10);
+		dataToWrite->dataInt2 = generateRandomNumber(1, 10);
+		cout << "Thread[" << threadNum << "] Writing at index [" << this->currentWriteIndex << "]: " << dataToWrite->dataInt1 << endl;
+
+		this->sharedResourcePtr->at(this->currentWriteIndex) = dataToWrite;
+		this->currentWriteIndex = nextWriteIndex;
+		lock.unlock();
+
+		this->bufferIsEmpty.notify_one();
+		
 	}
-
 }
 
 void ControlAPI::read(int threadNum)
@@ -60,27 +54,20 @@ void ControlAPI::read(int threadNum)
 	int readOperationCounter = 0;
 	while (readOperationCounter++ != this->maxOperationsNum)
 	{
-		this->controlMutex.lock();
+		// Added sleep to simulate faster writing than reading
+		sleepFor(threadNum, 100);
+
+		std::unique_lock<std::mutex> lock(this->controlMutex);
+
 		int nextReadIndex = (this->currentReadIndex + 1) % maxBufferSize;
 
-		if (this->currentReadIndex == this->currentWriteIndex)
-		{
-			// Wait for reader to catch up with writer
-			cout << "Thread[" << threadNum << "] Waiting for writer..." << endl;
-			this->controlMutex.unlock();
-			sleepFor(threadNum, 100);
-		}
-		else
-		{
-			Data* consumedValue = this->sharedResourcePtr->at(this->currentReadIndex);
-			cout << "Thread[" << threadNum << "] Reading at index [" << this->currentReadIndex << "]: " << consumedValue->dataInt1 << endl;
-			delete consumedValue;
+		this->bufferIsEmpty.wait(lock, [this] {return this->currentReadIndex != this->currentWriteIndex; });
+		Data* consumedValue = this->sharedResourcePtr->at(this->currentReadIndex);
+		cout << "Thread[" << threadNum << "] Reading at index [" << this->currentReadIndex << "]: " << consumedValue->dataInt1 << endl;
+		delete consumedValue;
 
-			this->currentReadIndex = nextReadIndex;
-			this->controlMutex.unlock();
-			sleepFor(threadNum, 100);
-		}
-
-
+		this->currentReadIndex = nextReadIndex;
+		lock.unlock();
+		this->bufferIsFull.notify_one();
 	}
 }
