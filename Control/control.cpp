@@ -48,6 +48,7 @@ void ControlAPI::initialize()
  * and to ensure that the buffer is not full before writing.
  *
  * @param threadNum The thread number indicating the calling thread.
+ * @param delayTime Time to delay write operation
  */
 void ControlAPI::write(int threadNum, int delayTime)
 {
@@ -108,6 +109,7 @@ void ControlAPI::write(int threadNum, int delayTime)
  * is not empty before reading.
  *
  * @param threadNum The thread number indicating the calling thread.
+ * @param delayTime Time to delay write operation
  */
 void ControlAPI::read(int threadNum, int delayTime)
 {

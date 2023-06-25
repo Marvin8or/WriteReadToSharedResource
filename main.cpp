@@ -20,13 +20,13 @@ int main()
 	 * On my PC, range of avg. execution time is [1.6 - 2.5] ms without added delay.
 	 * The point is that both function take same time to execute.
 	 */
-	//std::thread Thread1(&ControlAPI::write, control, 1, 0);
-	//std::thread Thread2(&ControlAPI::read, control, 2, 0);
+	std::thread Thread1(&ControlAPI::write, control, 1, 0);
+	std::thread Thread2(&ControlAPI::read, control, 2, 0);
 
-	//Thread1.join();
-	//Thread2.join();
+	Thread1.join();
+	Thread2.join();
 
-	//printBuffer(control->getWriteIndex(), control->getSharedResourcePtr());
+	printBuffer(control->getWriteIndex(), control->getSharedResourcePtr());
 
 	// --------------------
 	// |***** Test 2 *****|
