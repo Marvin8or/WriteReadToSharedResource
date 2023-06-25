@@ -13,7 +13,7 @@ private:
 	int maxBufferSize;
 
 	// Maximum number of operations read/write
-	const int maxOperationsNum = 100;
+	const int maxOperationsNum = 1000;
 
 	// Mutex object to control locking and unlocking
 	std::mutex controlMutex;
