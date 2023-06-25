@@ -51,9 +51,22 @@ void ControlAPI::initialize()
  */
 void ControlAPI::write(int threadNum)
 {
+	// start time of clock
+	std::chrono::steady_clock::time_point startTime;
+
+	// end time of clock
+	std::chrono::steady_clock::time_point endTime;
+
+	// average exution time of method "write"
+	double avgTime = 0.0;
+
 	int writeOperationCounter = 0; // Counter for the number of write operations
 	while (writeOperationCounter++ != this->maxOperationsNum) // Loop until the desired number of write operations is reached
 	{
+		startTime = std::chrono::steady_clock::now(); // get current time
+
+		// Simulate a delay to emulate faster reading
+		//sleepFor(threadNum, 100);
 		std::unique_lock<std::mutex> lock(this->controlMutex); // Acquire a unique lock on the ControlAPI instance mutex
 
 		int nextWriteIndex = (this->currentWriteIndex + 1) % maxBufferSize; // Calculate the next write index in the circular buffer
@@ -76,7 +89,13 @@ void ControlAPI::write(int threadNum)
 		lock.unlock(); // Release the lock on the control mutex
 
 		this->bufferIsEmpty.notify_one(); // Notify waiting threads that the buffer is no longer empty
+		endTime = std::chrono::steady_clock::now(); // get current time
+
+		std::chrono::duration<double> elapsedSeconds = endTime - startTime;
+		double elapsedMilliseconds = elapsedSeconds.count() * 1000.0;
+		avgTime += elapsedMilliseconds; // add to avgTime after each iteration
 	}
+	std::cout << "AVERAGE TIME (write): " << avgTime / this->maxOperationsNum << std::endl;
 }
 
 /*
@@ -92,11 +111,21 @@ void ControlAPI::write(int threadNum)
  */
 void ControlAPI::read(int threadNum)
 {
+	// start time of clock
+	std::chrono::steady_clock::time_point startTime;
+
+	// end time of clock
+	std::chrono::steady_clock::time_point endTime;
+
+	// average exution time of method "read"
+	double avgTime = 0.0;
+
 	int readOperationCounter = 0; // Counter for the number of read operations
 	while (readOperationCounter++ != this->maxOperationsNum) // Loop until the desired number of read operations is reached
 	{
+		startTime = std::chrono::steady_clock::now(); // get current time
 		// Simulate a delay to emulate faster writing than reading
-		sleepFor(threadNum, 100);
+		//sleepFor(threadNum, 100);
 
 		std::unique_lock<std::mutex> lock(this->controlMutex); // Acquire a unique lock on the control mutex
 
@@ -117,6 +146,12 @@ void ControlAPI::read(int threadNum)
 		lock.unlock(); // Release the lock on the control mutex
 
 		this->bufferIsFull.notify_one(); // Notify waiting threads that the buffer is no longer full
+		endTime = std::chrono::steady_clock::now(); // get current time
+		std::chrono::duration<double> elapsedSeconds = endTime - startTime;
+		double elapsedMilliseconds = elapsedSeconds.count() * 1000.0;
+		avgTime += elapsedMilliseconds; // add to avgTime after each iteration
+
 	}
+	std::cout << "AVERAGE TIME (read): " << avgTime / this->maxOperationsNum << std::endl;
 }
 
