@@ -49,7 +49,7 @@ void ControlAPI::initialize()
  *
  * @param threadNum The thread number indicating the calling thread.
  */
-void ControlAPI::write(int threadNum)
+void ControlAPI::write(int threadNum, int delayTime)
 {
 	// start time of clock
 	std::chrono::steady_clock::time_point startTime;
@@ -66,7 +66,7 @@ void ControlAPI::write(int threadNum)
 		startTime = std::chrono::steady_clock::now(); // get current time
 
 		// Simulate a delay to emulate faster reading
-		//sleepFor(threadNum, 100);
+		sleepFor(threadNum, delayTime);
 		std::unique_lock<std::mutex> lock(this->controlMutex); // Acquire a unique lock on the ControlAPI instance mutex
 
 		int nextWriteIndex = (this->currentWriteIndex + 1) % maxBufferSize; // Calculate the next write index in the circular buffer
@@ -109,7 +109,7 @@ void ControlAPI::write(int threadNum)
  *
  * @param threadNum The thread number indicating the calling thread.
  */
-void ControlAPI::read(int threadNum)
+void ControlAPI::read(int threadNum, int delayTime)
 {
 	// start time of clock
 	std::chrono::steady_clock::time_point startTime;
@@ -125,7 +125,7 @@ void ControlAPI::read(int threadNum)
 	{
 		startTime = std::chrono::steady_clock::now(); // get current time
 		// Simulate a delay to emulate faster writing than reading
-		//sleepFor(threadNum, 100);
+		sleepFor(threadNum, delayTime);
 
 		std::unique_lock<std::mutex> lock(this->controlMutex); // Acquire a unique lock on the control mutex
 

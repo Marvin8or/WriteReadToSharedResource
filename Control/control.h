@@ -37,8 +37,8 @@ public:
 	// C'tor
 	ControlAPI(int size);
 
-	void write(int threadNum);
-	void read(int threadNum);
+	void write(int threadNum, int delayTime);
+	void read(int threadNum, int delayTime);
 	void initialize();
 	int getWriteIndex() { return this->currentWriteIndex; }
 	int getReadIndex() { return this->currentReadIndex; }
