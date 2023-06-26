@@ -18,7 +18,8 @@ int main()
 	/*
 	 * Test execution when both threads execute with approximately same time
 	 * On my PC, range of avg. execution time is [1.6 - 2.5] ms without added delay.
-	 * The point is that both function take same time to execute.
+	 * The point is that both function take same time to execute. Read and write operations
+	 * are synchronized.
 	 */
 	std::thread Thread1(&ControlAPI::write, control, 1, 0);
 	std::thread Thread2(&ControlAPI::read, control, 2, 0);

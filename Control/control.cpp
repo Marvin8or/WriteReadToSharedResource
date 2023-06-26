@@ -58,7 +58,7 @@ void ControlAPI::write(int threadNum, int delayTime)
 	// end time of clock
 	std::chrono::steady_clock::time_point endTime;
 
-	// average exution time of method "write"
+	// average execution time of method "write"
 	double avgTime = 0.0;
 
 	int writeOperationCounter = 0; // Counter for the number of write operations
@@ -119,7 +119,7 @@ void ControlAPI::read(int threadNum, int delayTime)
 	// end time of clock
 	std::chrono::steady_clock::time_point endTime;
 
-	// average exution time of method "read"
+	// average execution time of method "read"
 	double avgTime = 0.0;
 
 	int readOperationCounter = 0; // Counter for the number of read operations
